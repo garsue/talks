@@ -1,0 +1,91 @@
+Goのハマりがちなところ
+Otemachi.go #1
+20 Mar 2019
+
+garsue
+Engineer, MF KESSAI, Inc.
+osuga.shunya@mfkessai.co.jp
+@__garsue__
+
+* Go is simple...?
+
+Goは比較的驚きの少ない言語仕様だと思ってますが、
+それでも知らないとハマりがちなところがあります。
+
+よくやりがちところや自分の経験を元に、ざっとご紹介。
+
+* ハマりがちなところ
+
+- ループ変数とクロージャ
+- ループ変数のポインタ
+- deferの引数評価タイミング
+- 型付nil (typed nil)
+
+* ループ変数とクロージャ
+
+.play closure/main.go
+
+再代入されるので・・・
+
+* ループ変数のポインタ
+
+.play pointer/main.go
+
+ループ変数のポインタを取ると・・・
+
+* 対策
+
+scopelintを使おう
+.link https://github.com/kyoh86/scopelint
+.link https://qiita.com/kyoh86/items/97911180d6254d5fc90c
+
+前述の例だとこんな感じで怒られる
+
+    $ scopelint ./...
+    closure/main.go:11:16: Using the variable on range scope "i" in function literal
+    pointer/main.go:10:20: Using a reference for the variable on range scope "i"
+    Found 2 lint problems; failing.
+
+*参考*
+
+ループでgoroutine起こすときに特にやりがち、という話。
+.link https://github.com/golang/go/wiki/CommonMistakes
+
+* deferの評価タイミング
+
+.play defer/main.go
+
+`defer` 時点で引数を評価するので・・・
+
+* 対策
+
+.play defer2/main.go
+
+最終的な値を評価したい場合は関数で
+ラップしよう
+
+* 型付nil (typed nil)
+
+.play typednil/main.go
+
+一体何が起こっているんだ・・・
+
+* 型付nil (typed nil) とは
+
+型のみを持ったinterface値のこと。
+
+interfaceは内部的に型と値を持っている。
+`nil` と比較して真になるのは型と値いずれも未設定の場合のみ。
+値としては未設定でも型を持っている場合は `nil` として扱われなくなる。
+
+詳しくは下記を見るべし。
+
+.link https://golang.org/doc/faq
+.link https://dave.cheney.net/2017/08/09/typed-nils-in-go-2
+
+* 対策は・・・
+
+- 値が空になるようなinterfaceの変数を宣言しない
+- interfaceと `nil` を比較する場合は気をつける
+
+ぐらい？？
