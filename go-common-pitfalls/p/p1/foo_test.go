@@ -1,4 +1,4 @@
-package p1
+package p2
 
 import (
 	"fmt"
@@ -7,7 +7,10 @@ import (
 	"github.com/garsue/talks/p"
 )
 
-func TestName(t *testing.T) {
-	p.Slice = append(p.Slice, "p1")
-	fmt.Println(p.Slice)
+// START OMIT
+func Test1(t *testing.T) {
+	p.Lock.Lock()
+	p.Lock.Unlock()
+	fmt.Println("done in Test1")
 }
+// END OMIT

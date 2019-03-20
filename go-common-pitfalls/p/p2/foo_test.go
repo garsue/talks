@@ -7,7 +7,8 @@ import (
 	"github.com/garsue/talks/p"
 )
 
-func TestName(t *testing.T) {
-	p.Slice = append(p.Slice, "p2")
-	fmt.Println(p.Slice)
+func Test2(t *testing.T) {
+	p.Lock.Lock()
+	p.Lock.Unlock()
+	fmt.Println("done in Test2")
 }

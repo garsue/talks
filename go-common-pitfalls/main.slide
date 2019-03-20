@@ -7,6 +7,8 @@ Engineer, MF KESSAI, Inc.
 osuga.shunya@mfkessai.co.jp
 @__garsue__
 
+* Go書き始めた人向けの話をします
+
 * 自己紹介
 
 .image images/icon.png 200 _
@@ -28,6 +30,8 @@ Goは比較的驚きの少ない言語仕様だと思ってますが、
 - ループ変数のポインタ
 - deferの引数評価タイミング
 - 型付nil (typed nil)
+- `time.Time` と `AddDate`
+- テストの実行単位
 
 * ループ変数とクロージャ
 
@@ -91,9 +95,56 @@ interfaceは内部的に型と値を持っている。
 .link https://golang.org/doc/faq
 .link https://dave.cheney.net/2017/08/09/typed-nils-in-go-2
 
+Go2でどうにかする議論もあったけど、直近でいい感じの改善策はなかったっぽい
+.link https://github.com/golang/go/issues/27890
+
 * 対策は・・・
 
 - 値が空になるようなinterfaceの変数を宣言しない
 - interfaceと `nil` を比較する場合は気をつける
+- テスト書く
 
 ぐらい？？
+
+* time.Time と AddDate
+
+.play time1/main.go
+
+2月末日にはならない
+
+* 対策
+
+月単位の操作をする場合は一度月初日を取る。
+
+.play time2/main.go
+
+
+* テストの実行単位
+
+.code p/chan.go
+.code p/p1/foo_test.go /START OMIT/,/END OMIT/
+
+みたいな何らかのリソースをロックするテストがあったとして・・・
+
+* テストの実行単位
+
+.code p/p2/foo_test.go
+
+みたいな別パッケージのテストからロックをとろうとしても
+パッケージをまたぐテスト間でロックされなれない！
+（手頃な例が作れなかったです、ごめんなさい）
+
+* テストの実行はパッケージ単位で別プロセス
+
+    go test ./...
+
+みたいに複数パッケージのテストを実行した場合、各パッケージごとにテストがコンパイルされます。
+実行もパッケージごとにコンパイルされたバイナリが使われるので、
+パッケージ変数を共有したつもりでも実は共有されていません。
+
+* 対策
+
+- パッケージ間で共有してる変数に依存した構成を見直す
+- テストの並列度を1にする( `-p` オプションで指定可能)
+- 一括実行せずテストを実行するパッケージの順序を調整する
+- lockファイルでゴニョゴニョする
